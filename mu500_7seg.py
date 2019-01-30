@@ -2,6 +2,7 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from PyQt5.QtNetwork import *
 
 class QtLED(QLabel):
     def __init__(self):
@@ -24,6 +25,7 @@ class MU500_7SEG(QWidget):
     def __init__(self):
         super().__init__()
         self.init_ui()
+        self.init_socket()
 
     def init_ui(self):
         BoxLay = QVBoxLayout()
@@ -65,6 +67,24 @@ class MU500_7SEG(QWidget):
                 led = QtLED()
                 hboxlay.addWidget(led)
                 self.leds.append(led)
+
+    def init_socket(self):
+        self.port = 65007
+        self.sock = QUdpSocket()
+        self.sock.bind(self.port)
+        self.sock.readyRead.connect(self.recv)
+
+    def recv(self):
+        (data, addr, port) = self.sock.readDatagram(4)
+
+        str = data.decode('utf-8')
+        
+        offset = int(str[0:2])
+        data = str[2]
+
+        print("recvd: %d %s" % (offset, data))
+
+
 
 
 if __name__ == '__main__':
