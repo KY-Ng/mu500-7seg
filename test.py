@@ -11,5 +11,7 @@ def send(offset, byte):
 
 send("00", "F")
 send("01", "A")
+send("10", "F")
+send("11", "5")
 
 sock.close()

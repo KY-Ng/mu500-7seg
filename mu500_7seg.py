@@ -20,6 +20,9 @@ class QtLED(QLabel):
     def off(self):
         self.setFillColor(Qt.black)
 
+# https://github.com/aboutNisblee/SevenSegmentDisplay/blob/master/src/gui/displaynode_p.hpp#L362
+class Qt7Seg():
+    pass
 
 class MU500_7SEG(QWidget):
     def __init__(self):
@@ -41,9 +44,6 @@ class MU500_7SEG(QWidget):
         self.setGeometry(500, 500, 300, 500)
         self.setWindowTitle('EventTest')
         self.show()
-
-        self.leds[10].on()
-        self.w7segs[0].display("0100")
 
 
     def init_7seg(self, layout):
@@ -74,18 +74,29 @@ class MU500_7SEG(QWidget):
         self.sock.bind(self.port)
         self.sock.readyRead.connect(self.recv)
 
+    def decode_7seg(self, value):
+        pass
+
+    def decode(self, offset, value):
+        if offset == 0:
+            self.w7segs[0].display(str(value))
+        elif offset >= 0x10:
+            led_num = offset - 0x10
+            for i in range(8):
+                if (value >> i) & 0x01 == 0:
+                    self.leds[led_num*4 + i].off()
+                else:
+                    self.leds[led_num*4 + i].on()
+
     def recv(self):
         (data, addr, port) = self.sock.readDatagram(4)
 
-        str = data.decode('utf-8')
+        string = data.decode('utf-8')
         
-        offset = int(str[0:2])
-        data = str[2]
-
+        offset = int(string[0:2], 16)
+        data = int(string[2], 16)
         print("recvd: %d %s" % (offset, data))
-
-
-
+        self.decode(offset, data)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
