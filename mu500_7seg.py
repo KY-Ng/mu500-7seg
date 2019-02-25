@@ -21,30 +21,74 @@ class QtLED(QLabel):
         self.setFillColor(Qt.black)
 
 # https://github.com/aboutNisblee/SevenSegmentDisplay/blob/master/src/gui/displaynode_p.hpp#L362
-class Qt7Seg():
-    pass
+class Qt7Seg(QWidget):
+    def __init__(self):
+        self.labels = []
+        self.pixmaps = []
+        self.createWidgets()
+        self.createLayouts()
 
-class MU500_7SEG(QWidget):
+    IS_VERTICAL_ELEMENT=[False, True, True, False, True, True, False]
+    def createWidgets(self):
+        for i in range(7):
+            self.labels[i] = QLabel()
+            if Qt7Seg.IS_VERTICAL_ELEMENT[i]:
+                self.pixmaps[i] = QPixmap(10, 20)
+            else:
+                self.pixmaps[i] = QPixmap(20, 10)
+
+    def createLayouts(self):
+        vertical = QVBoxLayout()
+        self.setLayout(vertical)
+
+        vertical.addWidget(self.labels[0])
+
+        h1 = QHBoxLayout()
+        vertical.addLayout(h1)
+        h1.addWidget(self.labels[5])
+        h1.addWidget(self.labels[1])
+
+        vertical.addWidget(self.labels[7])
+
+        h2 = QHBoxLayout()
+        vertical.addLayout(h2)
+        h2.addWidget(self.labels[4])
+        h2.addWidget(self.labels[2])
+
+        vertical.addLayout(self.labels[3])
+
+    def setFillColor(self, i, color):
+        self.pixmaps[i].fill(color)
+        self.labels[i].setPixmap(self.pixs[i])
+
+    def on(self, i):
+        self.setFillColor(i, Qt.yellow)
+
+    def off(self, i):
+        self.setFillColor(i, Qt.black)
+
+
+
+class Mu5007Seg(QWidget):
     def __init__(self):
         super().__init__()
         self.init_ui()
         self.init_socket()
 
     def init_ui(self):
-        BoxLay = QVBoxLayout()
-        self.setLayout(BoxLay)
+        boxLay = QVBoxLayout()
+        self.setLayout(boxLay)
 
-        self.init_leds(BoxLay)
-        self.init_7seg(BoxLay)
+        self.init_leds(boxLay)
+        self.init_7seg(boxLay)
 
         Stool = QSlider(Qt.Horizontal, self)
-        BoxLay.addWidget(Stool)
+        boxLay.addWidget(Stool)
         Stool.valueChanged.connect(self.w7segs[0].display)
 
         self.setGeometry(500, 500, 300, 500)
         self.setWindowTitle('EventTest')
         self.show()
-
 
     def init_7seg(self, layout):
         self.w7segs = []
@@ -100,5 +144,5 @@ class MU500_7SEG(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    win = MU500_7SEG()
+    win = Mu5007Seg()
     sys.exit(app.exec_())
