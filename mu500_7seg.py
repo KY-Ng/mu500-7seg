@@ -28,9 +28,9 @@ class Qt7Seg(QWidget):
         self.createWidgets()
         self.createLayouts()
         
-    IS_VERTICAL_ELEMENT=[False, True, True, False, True, True, False]
+    IS_VERTICAL_ELEMENT=[False, True, True, False, True, True, False, True]
     def createWidgets(self):
-        for i in range(7):
+        for i in range(8):
             self.labels.append(QLabel())
             if Qt7Seg.IS_VERTICAL_ELEMENT[i]:
                 self.pixmaps.append(QPixmap(10, 40))
@@ -115,9 +115,6 @@ class Mu5007Seg(QWidget):
         self.sock.bind(self.port)
         self.sock.readyRead.connect(self.recv)
 
-    def decode_7seg(self, value):
-        pass
-
     def decode(self, offset, value):
         if 0 <= offset and offset <= 63:
             self.w7segs[offset].setValue(value)
@@ -135,8 +132,8 @@ class Mu5007Seg(QWidget):
         string = data.decode('utf-8')
         
         offset = int(string[0:2], 16)
-        data = int(string[2:3], 16)
-        print("recvd: %d %s" % (offset, data))
+        data = int(string[2:4], 16)
+        print("recvd: %d %d" % (offset, data))
         self.decode(offset, data)
 
 if __name__ == '__main__':
