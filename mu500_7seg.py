@@ -135,7 +135,7 @@ class Mu5007Seg(QWidget):
         string = data.decode('utf-8')
         
         offset = int(string[0:2], 16)
-        data = int(string[2], 16)
+        data = int(string[2:3], 16)
         print("recvd: %d %s" % (offset, data))
         self.decode(offset, data)
 
