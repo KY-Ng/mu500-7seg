@@ -23,51 +23,49 @@ class QtLED(QLabel):
 # https://github.com/aboutNisblee/SevenSegmentDisplay/blob/master/src/gui/displaynode_p.hpp#L362
 class Qt7Seg(QWidget):
     def __init__(self):
+        super().__init__()
         self.labels = []
         self.pixmaps = []
         self.createWidgets()
         self.createLayouts()
+        self.show()
 
     IS_VERTICAL_ELEMENT=[False, True, True, False, True, True, False]
     def createWidgets(self):
         for i in range(7):
-            self.labels[i] = QLabel()
+            self.labels.append(QLabel())
             if Qt7Seg.IS_VERTICAL_ELEMENT[i]:
-                self.pixmaps[i] = QPixmap(10, 20)
+                self.pixmaps.append(QPixmap(10, 40))
             else:
-                self.pixmaps[i] = QPixmap(20, 10)
+                self.pixmaps.append(QPixmap(40, 10))
+            self.on(i)
 
     def createLayouts(self):
-        vertical = QVBoxLayout()
-        self.setLayout(vertical)
+        layouts = [
+            (0, 1), #0
+            (1, 2), #1
+            (3, 2), #2
+            (4, 1), #3
+            (3, 0), #4
+            (1, 0), #5
+            (2, 1), #6
+        ]
 
-        vertical.addWidget(self.labels[0])
-
-        h1 = QHBoxLayout()
-        vertical.addLayout(h1)
-        h1.addWidget(self.labels[5])
-        h1.addWidget(self.labels[1])
-
-        vertical.addWidget(self.labels[7])
-
-        h2 = QHBoxLayout()
-        vertical.addLayout(h2)
-        h2.addWidget(self.labels[4])
-        h2.addWidget(self.labels[2])
-
-        vertical.addLayout(self.labels[3])
+        grid = QGridLayout()
+        for i, t in enumerate(layouts):
+            grid.addWidget(self.labels[i], t[0], t[1])
+        grid.setHorizontalSpacing(0)
+        self.setLayout(grid)
 
     def setFillColor(self, i, color):
         self.pixmaps[i].fill(color)
-        self.labels[i].setPixmap(self.pixs[i])
+        self.labels[i].setPixmap(self.pixmaps[i])
 
     def on(self, i):
         self.setFillColor(i, Qt.yellow)
 
     def off(self, i):
         self.setFillColor(i, Qt.black)
-
-
 
 class Mu5007Seg(QWidget):
     def __init__(self):
