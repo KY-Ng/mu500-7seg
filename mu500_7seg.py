@@ -131,14 +131,20 @@ class Mu5007Seg(QWidget):
                 value = value >> 1
 
     def recv(self):
-        (data, addr, port) = self.sock.readDatagram(4)
+        try:
+            (data, addr, port) = self.sock.readDatagram(4)
+            print(data)
 
-        string = data.decode('utf-8')
-        
-        offset = int(string[0:2], 16)
-        data = int(string[2:4], 16)
-        print("recvd: %d %d" % (offset, data))
-        self.decode(offset, data)
+            string = data.decode('utf-8')
+            
+            offset = int(string[0:2], 16)
+            data = int(string[2:4], 16)
+            print("recvd: %d %d" % (offset, data))
+            self.decode(offset, data)
+        except:
+            print('error')
+            pass
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
