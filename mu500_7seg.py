@@ -104,10 +104,13 @@ class Mu5007Seg(QWidget):
         for j in range(4):
             hboxlay = QHBoxLayout()
             layout.addLayout(hboxlay)
-            for i in range(16):
-                led = QtLED()
-                hboxlay.addWidget(led)
-                self.leds.append(led)
+            for i in range(2):
+                ls = []
+                for i in range(8):
+                    led = QtLED()
+                    hboxlay.addWidget(led)
+                    ls.append(led)
+                self.leds.extend(ls[::-1])
 
     def init_socket(self):
         self.port = 65007
@@ -116,15 +119,16 @@ class Mu5007Seg(QWidget):
         self.sock.readyRead.connect(self.recv)
 
     def decode(self, offset, value):
-        if 0 <= offset and offset <= 63:
+        if 0 <= offset and offset < 0x40:
             self.w7segs[offset].setValue(value)
-        elif offset >= 0x10:
-            led_num = offset - 0x10
+        elif 0x40 <= offset and offset <= 0x47:
+            led_num = offset - 0x40 
             for i in range(8):
-                if (value >> i) & 0x01 == 0:
-                    self.leds[led_num*4 + i].off()
+                if value & 0x01 == 0:
+                    self.leds[led_num*8 + i].off()
                 else:
-                    self.leds[led_num*4 + i].on()
+                    self.leds[led_num*8 + i].on()
+                value = value >> 1
 
     def recv(self):
         (data, addr, port) = self.sock.readDatagram(4)
