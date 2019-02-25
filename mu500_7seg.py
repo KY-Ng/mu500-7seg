@@ -20,7 +20,6 @@ class QtLED(QLabel):
     def off(self):
         self.setFillColor(Qt.black)
 
-# https://github.com/aboutNisblee/SevenSegmentDisplay/blob/master/src/gui/displaynode_p.hpp#L362
 class Qt7Seg(QWidget):
     def __init__(self):
         super().__init__()
@@ -28,8 +27,7 @@ class Qt7Seg(QWidget):
         self.pixmaps = []
         self.createWidgets()
         self.createLayouts()
-        self.show()
-
+        
     IS_VERTICAL_ELEMENT=[False, True, True, False, True, True, False]
     def createWidgets(self):
         for i in range(7):
@@ -38,7 +36,7 @@ class Qt7Seg(QWidget):
                 self.pixmaps.append(QPixmap(10, 40))
             else:
                 self.pixmaps.append(QPixmap(40, 10))
-            self.on(i)
+            self.off(i)
 
     def createLayouts(self):
         layouts = [
@@ -67,6 +65,14 @@ class Qt7Seg(QWidget):
     def off(self, i):
         self.setFillColor(i, Qt.black)
 
+    def setValue(self, value):
+        for i in range(7):
+            if value & 0x1 == 1:
+                self.on(i)
+            else:
+                self.off(i)
+            value = value >> 1
+
 class Mu5007Seg(QWidget):
     def __init__(self):
         super().__init__()
@@ -80,12 +86,7 @@ class Mu5007Seg(QWidget):
         self.init_leds(boxLay)
         self.init_7seg(boxLay)
 
-        Stool = QSlider(Qt.Horizontal, self)
-        boxLay.addWidget(Stool)
-        Stool.valueChanged.connect(self.w7segs[0].display)
-
-        self.setGeometry(500, 500, 300, 500)
-        self.setWindowTitle('EventTest')
+        self.setWindowTitle('MU500 7Seg')
         self.show()
 
     def init_7seg(self, layout):
@@ -93,10 +94,8 @@ class Mu5007Seg(QWidget):
         for i in range(4):
             hboxlay = QHBoxLayout()
             layout.addLayout(hboxlay)
-            for j in range(4):
-                w7seg = QLCDNumber(self)
-                w7seg.setHexMode()
-                w7seg.display("0000")
+            for j in range(16):
+                w7seg = Qt7Seg()
                 hboxlay.addWidget(w7seg)
                 self.w7segs.append(w7seg)
 
@@ -120,8 +119,8 @@ class Mu5007Seg(QWidget):
         pass
 
     def decode(self, offset, value):
-        if offset == 0:
-            self.w7segs[0].display(str(value))
+        if 0 <= offset and offset <= 63:
+            self.w7segs[offset].setValue(value)
         elif offset >= 0x10:
             led_num = offset - 0x10
             for i in range(8):
