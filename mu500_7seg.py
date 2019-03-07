@@ -85,6 +85,7 @@ class Mu5007Seg(QWidget):
 
         self.init_leds(boxLay)
         self.init_7seg(boxLay)
+        self.init_button(boxLay)
 
         self.setWindowTitle('MU500 7Seg')
         self.show()
@@ -112,11 +113,44 @@ class Mu5007Seg(QWidget):
                     ls.append(led)
                 self.leds.extend(ls[::-1])
 
+    def init_button(self, layout):
+        self.buttons = []
+        for j in range(4):
+            hboxylay = QHBoxLayout()
+            layout.addLayout(hboxylay)
+            for i in range(4):
+                b = QPushButton("○", self)
+                self.buttons.append(b)
+                hboxylay.addWidget(b)
+                b.pressed.connect(self.pressed_button)
+                b.released.connect(self.released_button)
+
     def init_socket(self):
+        # for receive
         self.port = 65007
+        self.send_port = 65008
         self.sock = QUdpSocket()
         self.sock.bind(self.port)
         self.sock.readyRead.connect(self.recv)
+
+    def sendi(self, offset, byte):
+        self.send(format(offset, "02x"), format(byte, "02x"))
+
+    def send(self, offset, byte):
+        str = offset + byte + ";"
+        self.sock.writeDatagram(str.encode('utf-8'), QHostAddress.LocalHost, self.send_port)
+        print("sent: " + str)
+
+    def pressed_button(self):
+        i = self.buttons.index(self.sender())
+        offset = int(i / 8) + 0x48
+        value = 1 << (i % 8)
+        self.sendi(offset, value)
+
+    def released_button(self):
+        i = self.buttons.index(self.sender())
+        offset = int(i / 8) + 0x48
+        self.sendi(offset, 0) #XXX multiple button
 
     def decode(self, offset, value):
         if 0 <= offset and offset < 0x40:
