@@ -139,7 +139,6 @@ class Mu5007Seg(QWidget):
     def send(self, offset, byte):
         str = offset + byte + ";"
         self.sock.writeDatagram(str.encode('utf-8'), QHostAddress.LocalHost, self.send_port)
-        print("sent: " + str)
 
     def pressed_button(self):
         i = self.buttons.index(self.sender())
@@ -167,13 +166,11 @@ class Mu5007Seg(QWidget):
     def recv(self):
         try:
             (data, addr, port) = self.sock.readDatagram(4)
-            print(data)
 
             string = data.decode('utf-8')
             
             offset = int(string[0:2], 16)
             data = int(string[2:4], 16)
-            print("recvd: %d %d" % (offset, data))
             self.decode(offset, data)
         except:
             print('error')
