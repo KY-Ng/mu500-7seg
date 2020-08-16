@@ -21,7 +21,7 @@ $ pip install -r requirements.txt
 
 ## 使い方
 ### 7SEGのLEDエミュレータの起動
-コードでLEDを変化する前に、MU500-7EG エミュレータを起動する必要がある。
+コードでLEDを変化する前に、MU500-7SEG エミュレータを起動する必要がある。
 
 ```bash
 $ python mu500_7seg.py
